@@ -1,5 +1,180 @@
 {
   "version": 4,
   "step": "discovery",
-  "owner": "active-orchestrator"
+  "owner": "active-orchestrator",
+  "discovery": {
+    "created_by": "discovery-research",
+    "sources": [],
+    "competitors": [],
+    "problema": "Un consultorio odontológico de un solo profesional coordina sus turnos por WhatsApp/papel apoyado en una planilla de Excel, lo que genera dobles reservas, turnos olvidados y tiempo perdido confirmando cada turno a mano.",
+    "usuarios": [
+      "Paciente: reserva un turno online sin crear cuenta (nombre + teléfono) y consulta la información de su turno; no opera cancelaciones.",
+      "Odontólogo: configura su disponibilidad, gestiona su agenda del día y cancela/reprograma turnos."
+    ],
+    "casos_de_uso": [
+      "Como paciente, quiero ver los horarios libres del odontólogo para reservar sin escribir ni llamar.",
+      "Como odontólogo, quiero ver mi agenda del día para saber cuántos turnos tengo y a qué hora.",
+      "Como odontólogo, quiero cancelar o reprogramar un turno cuando surge un imprevisto.",
+      "Como odontólogo, quiero dar de alta y mantener la ficha básica del paciente.",
+      "Como sistema, quiero recordar y confirmar el turno por WhatsApp (canal principal) con email de respaldo, y liberarlo si el paciente no confirma."
+    ],
+    "funcionalidades_necesarias": [
+      "Configurar disponibilidad/bloques de atención del odontólogo (días, horarios, duración de turno).",
+      "Reserva online del paciente, sin login obligatorio (nombre + teléfono).",
+      "Panel de agenda del odontólogo (vista diaria/semanal) con cancelación y reprogramación.",
+      "Ficha básica de paciente (datos + historial de turnos).",
+      "Catálogo de tipos de tratamiento con duración, configurable por el odontólogo, con base precargada de ejemplo.",
+      "Recordatorio y confirmación por WhatsApp (canal principal) con email de respaldo, con auto-liberación a las 24 h si el paciente no confirma; si el recordatorio no pudo entregarse, el turno se autoconfirma."
+    ],
+    "funcionalidades_opcionales": [
+      "Pagos / seña online.",
+      "Historial clínico / odontograma.",
+      "Multi-odontólogo / multi-sede.",
+      "Reportes y métricas (ocupación, ausentismo).",
+      "Obras sociales (tarifario, copago, liquidación) y facturación electrónica ARCA.",
+      "Asistente IA sobre WhatsApp que atienda y agende conversando."
+    ],
+    "reglas_de_negocio": [
+      "No hay anticipación mínima para cancelar: en el sistema solo cancela/reprograma el odontólogo.",
+      "Un odontólogo no puede tener dos turnos superpuestos.",
+      "Los turnos solo pueden caer dentro de los bloques de atención habilitados.",
+      "Un turno no confirmado se libera automáticamente 24 horas antes del turno.",
+      "El recordatorio va por WhatsApp (principal) con email de respaldo; si no pudo entregarse por ningún canal, el turno se autoconfirma (no se libera) y queda marcado.",
+      "La duración del turno depende del tipo de tratamiento, tomado de un catálogo configurable (ej. control 30min, endodoncia 90min).",
+      "Alcance del MVP: un solo odontólogo y una sola sede."
+    ],
+    "integraciones": [
+      "WhatsApp Business API para recordatorio y confirmación del turno (canal principal de la v1). El teléfono es obligatorio en la reserva.",
+      "Email transaccional como canal de respaldo, opcional para el paciente.",
+      "Futuro (backlog): pagos/seña online, obras sociales y facturación ARCA, asistente IA sobre WhatsApp."
+    ],
+    "restricciones": [
+      "Mobile-first obligatorio: los pacientes reservan desde el celular.",
+      "Compliance de datos de salud: la ficha del paciente es dato sensible (Ley 25.326, Argentina).",
+      "Descartadas explícitamente: stack obligatorio, presupuesto acotado, plazo fijo."
+    ],
+    "riesgos": [
+      "Riesgo de adopción reencuadrado: forzar al paciente a un canal nuevo en vez de atender el WhatsApp que ya usa. Mitigación: el recordatorio/confirmación corre por WhatsApp.",
+      "El odontólogo no mantiene su disponibilidad actualizada y el sistema muestra horarios que no están libres (turnos fantasma).",
+      "El tratamiento de seguridad de los datos clínicos todavía no está definido.",
+      "Scope y costo difusos: el alcance del MVP no quedó cerrado del todo."
+    ],
+    "preguntas_abiertas": [],
+    "decisiones_cerradas": {
+      "fecha": "2026-10-16",
+      "anticipacion_minima_cancelar": "Eliminada como regla propia; su única función es el cutoff de auto-liberación.",
+      "ventana_auto_liberacion": "24 horas antes del turno.",
+      "alcance_mvp": "Un solo odontólogo y una sola sede.",
+      "catalogo_tratamientos": "Configurable por el odontólogo, con base precargada de ejemplo.",
+      "paciente_sin_email": "Se permite reservar; el turno se autoconfirma (no se libera) y queda marcado para el odontólogo. Actualizado por §12: con WhatsApp como canal principal, el respaldo ya no depende del email.",
+      "reemplazo_de_planilla": "No desde el día 1: coexiste; el sistema es fuente de verdad para los turnos nuevos."
+    },
+    "mercado": {
+      "archivo": "docs/discovery/mercado-software-odontologico-ar.md",
+      "fecha_consulta": "2026-10-16",
+      "sistemas_relevados": 26,
+      "hallazgos_aplicados_al_mvp": [
+        "Canal de recordatorio: el mercado usa WhatsApp como canal principal y el email está en retirada. Se invirtió el orden en el MVP: WhatsApp primero, email como respaldo.",
+        "Obras sociales + facturación ARCA: mayor vacío del segmento cloud argentino y principal diferenciador disponible. Se sumaron al backlog/roadmap (no al MVP, como estaba previsto).",
+        "Riesgo de adopción del paciente: reencuadrado de 'portal del paciente' a 'agente IA sobre el WhatsApp que el paciente ya usa'. El MVP ya mueve el recordatorio a WhatsApp."
+      ],
+      "top_demo": ["Bilog", "DentalTec", "Órbita", "OdonFlow", "DentalCore"],
+      "referencia_ux": ["Doctoralia", "AgendaPro", "Curve Dental"],
+      "nota": "Aplicados al MVP el 2026-10-16. Ver docs/discovery/discovery.md §12."
+    }
+  },
+  "kb": {
+    "created_by": "kb-creator",
+    "mode": "interactive",
+    "source": "state.discovery + docs/discovery/discovery.md + docs/discovery/mercado-software-odontologico-ar.md",
+    "created_at": "2026-10-16",
+    "discovery": {
+      "problem": "Un consultorio odontológico de un solo profesional coordina sus turnos por WhatsApp/papel apoyado en una planilla de Excel, lo que genera dobles reservas, turnos olvidados y tiempo perdido confirmando cada turno a mano.",
+      "system_type": "web_app",
+      "domain": "healthtech",
+      "scale": "single_user",
+      "stack": "Next.js (App Router) + TypeScript + PostgreSQL + Prisma + Tailwind",
+      "needs_infra": true
+    },
+    "scope_v1": "1 odontólogo, 1 sede. Reserva online sin login, agenda del odontólogo, ficha básica, recordatorio/confirmación por WhatsApp con email de respaldo y auto-liberación a 24 h.",
+    "files": [
+      "knowledge-base/README.md",
+      "knowledge-base/01_vision_y_objetivos.md",
+      "knowledge-base/02_descripcion_general.md",
+      "knowledge-base/03_actores_y_roles.md",
+      "knowledge-base/04_modelo_de_datos.md",
+      "knowledge-base/05_reglas_de_negocio.md",
+      "knowledge-base/06_funcionalidades.md",
+      "knowledge-base/07_flujos_principales.md",
+      "knowledge-base/08_arquitectura_propuesta.md",
+      "knowledge-base/09_decisiones_y_supuestos.md",
+      "knowledge-base/10_preguntas_abiertas.md",
+      "knowledge-base/11_recordatorios_y_mensajeria.md",
+      "knowledge-base/12_cumplimiento_datos_de_salud.md"
+    ],
+    "extras": [
+      "11_recordatorios_y_mensajeria.md",
+      "12_cumplimiento_datos_de_salud.md"
+    ]
+  },
+  "roadmap": {
+    "created_by": "roadmap-generator",
+    "source": "CHANGES.md",
+    "changes": [
+      "C-01",
+      "C-02",
+      "C-03",
+      "C-04",
+      "C-05",
+      "C-06",
+      "C-07",
+      "C-08",
+      "C-09",
+      "C-10",
+      "C-11",
+      "C-12",
+      "C-13",
+      "C-14",
+      "C-15",
+      "C-16"
+    ]
+  },
+  "registry": {
+    "created_by": "skill-registry",
+    "file": ".atl/skill-registry.md",
+    "created_at": "2026-10-16",
+    "skills_indexed": 5,
+    "skipped_workflow_skills": [
+      "openspec-* (.opencode/skills)",
+      "active-orchestrator",
+      "discovery-research",
+      "kb-creator",
+      "roadmap-generator",
+      "find-skill",
+      "agent-instruction",
+      "web-scraper",
+      "skill-creator",
+      "skill-registry"
+    ],
+    "conventions_index": "AGENTS.md + CLAUDE.md (generados por agent-instruction)"
+  },
+  "agents": {
+    "created_by": "agent-instruction",
+    "files": [
+      "AGENTS.md",
+      "CLAUDE.md"
+    ],
+    "created_at": "2026-10-16",
+    "sincronizados": true,
+    "reglas_applied": [
+      "A. TypeScript/Next.js App Router (5)",
+      "B. Validación y entorno (3)",
+      "C. Prisma/PostgreSQL (5)",
+      "D. Testing (3)",
+      "E. Datos de salud - Ley 25.326 (3)",
+      "F. Proceso (3)"
+    ],
+    "total_reglas": 22,
+    "notas": "No existe instrucciones globales (~/.claude/CLAUDE.md ausente): las reglas universales de proceso (grupo F) se incluyeron en el proyecto. Stack corregido: Prisma 5.x -> 7.x en knowledge-base/02_descripcion_general.md. El skill-registry se actualizo para indexar AGENTS.md/CLAUDE.md como convenciones."
+  }
 }
