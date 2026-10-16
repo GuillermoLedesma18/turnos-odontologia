@@ -1,0 +1,3 @@
+# Capa de dominio: acá vive la lógica de negocio (agenda, reservas, slots).
+# Su contenido llega con el change C-02 (core-models). Este archivo solo
+# mantiene la carpeta versionada mientras está vacía.

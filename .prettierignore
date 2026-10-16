@@ -1,0 +1,26 @@
+# Código generado por Prisma
+src/generated/
+
+# Dependencias y artefactos de build
+node_modules/
+.next/
+coverage/
+package-lock.json
+
+# Archivos generados o escritos por herramientas, no por mano
+next-env.d.ts
+.active-orchestrator-state.json
+
+# Documentación viva del proyecto: se escribe a mano, no la reformatea Prettier
+knowledge-base/
+docs/
+AGENTS.md
+CLAUDE.md
+CHANGES.md
+
+# Andamiaje de OpenSpec y skills
+openspec/
+.agents/
+.opencode/
+.claude/
+skills-lock.json

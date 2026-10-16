@@ -1,0 +1,13 @@
+// Modelo de datos del proyecto: se define en el change C-02 (core-models).
+// Este change (C-01) no declara entidades ni migraciones a propósito: la
+// "Migración 001" del roadmap es la de C-02, y agregar un modelo placeholder
+// acá generaría una migración baseline descartable y correría la numeración.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

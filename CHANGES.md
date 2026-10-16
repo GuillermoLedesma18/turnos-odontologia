@@ -122,14 +122,14 @@ Paso │ Agente A (Núcleo/Datos)    │ Agente B (Integraciones)   │ Agente C
 ## FASE 0 — Cimientos
 
 ### [C-01] `foundation-setup`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado el 2026-10-16 como `2026-10-16-c-01-foundation-setup` (la tarea 2.1 quedó cerrada como excepción documentada)
 - **Scope**: Scaffolding del monolito + infraestructura base
   - Next.js 14 (App Router) + TypeScript + Tailwind; estructura `src/app`, `src/server`, `src/components`, `src/lib`, `prisma/`
   - Prisma inicializado contra PostgreSQL 15 (Docker Compose local)
   - `lib/env.ts` con validación Zod de variables de entorno; `.env.example` con todas las de `08_arquitectura_propuesta.md §Variables de entorno`
   - `GET /api/health` (smoke)
   - ESLint + Prettier + scripts (`dev`, `build`, `lint`, `typecheck`, `test`)
-  - CI GitHub Actions: lint + typecheck + build
+  - CI GitHub Actions: lint + typecheck + build + test
   - Tests: smoke del health check y del arranque de Prisma
 - **Dependencias**: ninguna
 - **Governance**: BAJO

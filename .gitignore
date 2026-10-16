@@ -1,0 +1,27 @@
+# Dependencias
+/node_modules
+
+# Next.js
+/.next/
+/out/
+
+# Código generado por Prisma
+/src/generated/
+
+# Cobertura de tests
+/coverage
+
+# TypeScript
+*.tsbuildinfo
+
+# Entorno: el .env real nunca se versiona; .env.example sí
+.env
+.env.*
+!.env.example
+
+# Registro de skills (artefacto local, no versionado)
+/.atl/
+
+# Sistema operativo y editor
+.DS_Store
+Thumbs.db
