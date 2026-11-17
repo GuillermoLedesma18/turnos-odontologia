@@ -144,10 +144,10 @@ Paso │ Agente A (Núcleo/Datos)    │ Agente B (Integraciones)   │ Agente C
 ## FASE 1 — Núcleo de datos y acceso
 
 ### [C-02] `core-models`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (2026-11-10)
 - **Scope**: Modelo de datos completo + migración inicial + seed
   - Modelos Prisma: `Dentist`, `AvailabilityBlock`, `BlockedSlot`, `TreatmentType`, `Patient`, `Appointment`, `NotificationLog`, `AuditLog`
-  - Enums: `AppointmentStatus`, `NotificationChannel`, `NotificationKind`, `NotificationStatus`
+  - Enums: `AppointmentStatus`, `NotificationChannel`, `NotificationKind`, `NotificationStatus`, `AuditActorType`, `AuditAction`
   - Migración 001: tablas + `CREATE EXTENSION btree_gist` + constraint `no_overlap` (`EXCLUDE USING gist` sobre `tstzrange`, activo solo en estados vivos)
   - Índices de `04_modelo_de_datos.md`: `(dentistId, startsAt)`, `(patientId, startsAt)`, `(status)`, `(dentistId, dayOfWeek)`
   - `seed.ts`: 1 `Dentist`, catálogo base (6 tratamientos), bloques lun-vie 09-13/15-19
@@ -183,6 +183,7 @@ Paso │ Agente A (Núcleo/Datos)    │ Agente B (Integraciones)   │ Agente C
   - Servicio `server/audit` append-only; helper `audit(actorType, actorRef, action, entity, entityId, ip)`
   - Instrumentar lecturas/escrituras de datos de paciente (actores `DENTIST`, `PATIENT_TOKEN`, `SYSTEM`)
   - `AuditLog` sin `UPDATE`/`DELETE` (revocar permisos a nivel DB)
+  - **Handoff de C-02 (D11)**: implementar y probar la vigencia append-only con rechazo de `UPDATE`/`DELETE` y fila original intacta; documentar el mecanismo y sus límites (por ejemplo, un superusuario puede saltarlo)
   - Tests: cada acceso escribe una fila; el log no admite modificación ni borrado
 - **Dependencias**: C-02, C-03
 - **Governance**: CRITICO

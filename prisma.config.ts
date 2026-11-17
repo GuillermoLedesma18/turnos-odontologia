@@ -6,6 +6,7 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
+    seed: 'tsx prisma/seed.ts',
   },
   datasource: {
     // Se lee de `.env` (cargado arriba). Se usa `process.env` en lugar del helper

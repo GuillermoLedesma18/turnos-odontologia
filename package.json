@@ -19,10 +19,13 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f db",
+    "db:test:migrate": "prisma migrate deploy --config prisma.test.config.ts",
+    "db:seed": "prisma db seed",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate"
   },
   "dependencies": {
+    "@node-rs/argon2": "2.2.2",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
     "next": "14.2.35",
@@ -43,6 +46,7 @@
     "prettier": "^3.6.2",
     "prisma": "7.10.1",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
     "typescript": "^5.4.5",
     "vitest": "^5.0.5"
   }

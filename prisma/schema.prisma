@@ -1,7 +1,8 @@
-// Modelo de datos del proyecto: se define en el change C-02 (core-models).
-// Este change (C-01) no declara entidades ni migraciones a propósito: la
-// "Migración 001" del roadmap es la de C-02, y agregar un modelo placeholder
-// acá generaría una migración baseline descartable y correría la numeración.
+// Modelo de datos del dominio (C-02 core-models).
+//
+// La Migración 001 se genera con Prisma y se completa con un bloque SQL manual
+// para lo que PSL no expresa: `btree_gist`, el constraint de exclusión
+// `no_overlap` y los CHECK de integridad. Ver design D1/D2.
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +11,178 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum AppointmentStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  CANCELLED
+  RELEASED
+  COMPLETED
+  NO_SHOW
+}
+
+enum NotificationChannel {
+  WHATSAPP
+  EMAIL
+}
+
+enum NotificationKind {
+  REMINDER
+  CONFIRMATION
+  CANCELLATION
+  RELEASE_NOTICE
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum AuditActorType {
+  DENTIST
+  PATIENT_TOKEN
+  SYSTEM
+}
+
+enum AuditAction {
+  READ
+  CREATE
+  UPDATE
+  DELETE
+  EXPORT
+}
+
+model Dentist {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  availabilityBlocks AvailabilityBlock[]
+  blockedSlots       BlockedSlot[]
+  appointments       Appointment[]
+}
+
+model AvailabilityBlock {
+  id        String    @id @default(uuid()) @db.Uuid
+  dentistId String    @db.Uuid
+  dayOfWeek Int       @db.SmallInt
+  startTime DateTime  @db.Time(0)
+  endTime   DateTime  @db.Time(0)
+  validFrom DateTime? @db.Date
+  validTo   DateTime? @db.Date
+  active    Boolean   @default(true)
+
+  dentist Dentist @relation(fields: [dentistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dentistId, dayOfWeek])
+}
+
+model BlockedSlot {
+  id        String   @id @default(uuid()) @db.Uuid
+  dentistId String   @db.Uuid
+  startsAt  DateTime @db.Timestamptz(3)
+  endsAt    DateTime @db.Timestamptz(3)
+  reason    String?
+
+  dentist Dentist @relation(fields: [dentistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dentistId, startsAt, endsAt])
+}
+
+model TreatmentType {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  durationMinutes Int
+  description     String?
+  price           Decimal? @db.Decimal(12, 2)
+  active          Boolean  @default(true)
+
+  appointments Appointment[]
+
+  @@index([active])
+}
+
+model Patient {
+  id        String   @id @default(uuid()) @db.Uuid
+  fullName  String
+  phone     String   @unique
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  appointments Appointment[]
+}
+
+model Appointment {
+  id                String            @id @default(uuid()) @db.Uuid
+  dentistId         String            @db.Uuid
+  patientId         String            @db.Uuid
+  treatmentTypeId   String            @db.Uuid
+  startsAt          DateTime          @db.Timestamptz(3)
+  endsAt            DateTime          @db.Timestamptz(3)
+  status            AppointmentStatus @default(PENDING_CONFIRMATION)
+  confirmationToken String            @unique
+  confirmedAt       DateTime?         @db.Timestamptz(3)
+  cancelledAt       DateTime?         @db.Timestamptz(3)
+  releasedAt        DateTime?         @db.Timestamptz(3)
+  cancelReason      String?
+  rescheduledFromId String?           @db.Uuid
+  createdAt         DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime          @updatedAt @db.Timestamptz(3)
+
+  dentist         Dentist           @relation(fields: [dentistId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  patient         Patient           @relation(fields: [patientId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  treatmentType   TreatmentType     @relation(fields: [treatmentTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  rescheduledFrom Appointment?      @relation("AppointmentReschedule", fields: [rescheduledFromId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  rescheduledTo   Appointment[]     @relation("AppointmentReschedule")
+  notifications   NotificationLog[]
+
+  @@index([dentistId, startsAt])
+  @@index([patientId, startsAt])
+  @@index([status])
+  @@index([treatmentTypeId])
+  @@index([rescheduledFromId])
+}
+
+model NotificationLog {
+  id                String              @id @default(uuid()) @db.Uuid
+  appointmentId     String              @db.Uuid
+  channel           NotificationChannel
+  kind              NotificationKind
+  status            NotificationStatus  @default(QUEUED)
+  providerMessageId String?
+  attempt           Int                 @default(1) @db.SmallInt
+  error             String?
+  sentAt            DateTime?           @db.Timestamptz(3)
+  createdAt         DateTime            @default(now()) @db.Timestamptz(3)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([appointmentId, createdAt])
+}
+
+// La auditoría es append-only por contrato, pero la restricción de UPDATE/DELETE
+// se implementa y prueba en C-04 (design D11). Sin FKs: la referencia es
+// polimórfica (`entity` + `entityId`) y debe sobrevivir a la entidad.
+model AuditLog {
+  id        BigInt         @id @default(autoincrement())
+  actorType AuditActorType
+  actorRef  String?
+  action    AuditAction
+  entity    String
+  entityId  String
+  ip        String?        @db.Inet
+  at        DateTime       @default(now()) @db.Timestamptz(3)
+
+  @@index([at])
+  @@index([entity, entityId])
 }
