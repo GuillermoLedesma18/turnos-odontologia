@@ -1,0 +1,10 @@
+export const SESSION_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+export const SESSION_ABSOLUTE_TIMEOUT_MS = 12 * 60 * 60 * 1000;
+export const SESSION_TOUCH_INTERVAL_MS = 5 * 60 * 1000;
+export const SESSION_CLEANUP_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+export const SESSION_COOKIE_NAME = 'turnos_session';
+export const LOGIN_RATE_LIMIT_MAX_ENTRIES = 10_000;
+export const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+export const LOGIN_RATE_LIMIT_MAX_FAILURES = 5;
+export const LOGIN_RATE_LIMIT_SWEEP_INTERVAL_MS = 60 * 1000;
+export const MAX_LOGIN_BODY_BYTES = 8 * 1024;

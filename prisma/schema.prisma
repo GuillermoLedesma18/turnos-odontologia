@@ -54,6 +54,9 @@ enum AuditAction {
   UPDATE
   DELETE
   EXPORT
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
 }
 
 model Dentist {
@@ -68,6 +71,7 @@ model Dentist {
   availabilityBlocks AvailabilityBlock[]
   blockedSlots       BlockedSlot[]
   appointments       Appointment[]
+  sessions           DentistSession[]
 }
 
 model AvailabilityBlock {
@@ -185,4 +189,19 @@ model AuditLog {
 
   @@index([at])
   @@index([entity, entityId])
+}
+
+model DentistSession {
+  id        String    @id @default(uuid()) @db.Uuid
+  dentistId String    @db.Uuid
+  tokenHash String    @unique @db.VarChar(64)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  lastUsedAt DateTime  @db.Timestamptz(3)
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+
+  dentist Dentist @relation(fields: [dentistId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dentistId])
+  @@index([expiresAt])
 }

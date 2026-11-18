@@ -10,6 +10,7 @@ const DOMAIN_TABLES = [
   'AvailabilityBlock',
   'BlockedSlot',
   'Dentist',
+  'DentistSession',
   'NotificationLog',
   'Patient',
   'TreatmentType',
@@ -34,7 +35,7 @@ describe('estado de la Migración 001', () => {
     expect(rows[0]?.rolled_back_at).toBeNull();
   });
 
-  it('crea las ocho tablas de dominio y la extensión btree_gist', async () => {
+  it('crea las nueve tablas de dominio y la extensión btree_gist', async () => {
     const tables = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
       SELECT tablename
       FROM pg_tables

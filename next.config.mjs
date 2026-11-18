@@ -4,6 +4,9 @@ const nextConfig = {
   eslint: {
     dirs: ['src', 'tests'],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['@node-rs/argon2', '@prisma/adapter-pg', '@prisma/client'],
+  },
 };
 
 export default nextConfig;

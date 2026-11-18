@@ -14,6 +14,7 @@ import type {
   AvailabilityBlock,
   BlockedSlot,
   Dentist,
+  DentistSession,
   NotificationLog,
   Patient,
   TreatmentType,
@@ -65,6 +66,34 @@ export async function createDentist(
       passwordHash: overrides.passwordHash ?? 'test-only-password-hash',
       fullName: overrides.fullName ?? 'Odontólogo de prueba',
       phone: overrides.phone ?? null,
+    },
+  });
+}
+
+export async function createDentistSession(
+  overrides: {
+    dentistId: string;
+    token?: string;
+    tokenHash?: string;
+    createdAt?: Date;
+    lastUsedAt?: Date;
+    expiresAt?: Date;
+    revokedAt?: Date | null;
+  } = {} as { dentistId: string },
+): Promise<DentistSession> {
+  const now = new Date();
+  const createdAt = overrides.createdAt ?? now;
+  const lastUsedAt = overrides.lastUsedAt ?? createdAt;
+  const expiresAt = overrides.expiresAt ?? new Date(createdAt.getTime() + 30 * 60 * 1000);
+
+  return testPrisma.dentistSession.create({
+    data: {
+      dentistId: overrides.dentistId,
+      tokenHash: overrides.tokenHash ?? overrides.token ?? `hash-${randomUUID()}`,
+      createdAt,
+      lastUsedAt,
+      expiresAt,
+      revokedAt: overrides.revokedAt ?? null,
     },
   });
 }
@@ -219,6 +248,7 @@ export async function cleanupAll(): Promise<void> {
   await testPrisma.blockedSlot.deleteMany();
   await testPrisma.auditLog.deleteMany();
   await testPrisma.treatmentType.deleteMany();
+  await testPrisma.dentistSession.deleteMany();
   await testPrisma.patient.deleteMany();
   await testPrisma.dentist.deleteMany();
 }

@@ -255,6 +255,27 @@ en ese caso usá Docker, un PostgreSQL nativo o el CI. El camino canónico del
 proyecto sigue siendo `docker-compose.yml` con `postgres:15`, que es el mismo
 motor que usa el CI.
 
+## Autenticación del odontólogo (C-03)
+
+C-03 agrega login, sesión persistida en PostgreSQL, logout, rutas protegidas y
+auditoría de autenticación.
+
+- Login: `POST /api/auth/login` con email y contraseña.
+- Sesión: cookie `turnos_session`, `HttpOnly`, `SameSite=Lax`, `Path=/`, `Secure`
+  en producción y tope absoluto de 12 horas.
+- Expiración por inactividad: 30 minutos. El tope absoluto es de 12 horas.
+- Logout: `POST /api/auth/logout` revoca solo la sesión actual.
+- Sesión actual: `GET /api/auth/me` devuelve `id`, `fullName` y `email`.
+- Área privada: `/agenda` es un placeholder protegido que reemplazará C-10.
+- Rate limit: 5 fallos por IP cada 15 minutos, con limpieza de entradas
+  expiradas y un máximo de 10.000 entradas en memoria.
+- Los headers `X-Forwarded-For` y `X-Real-IP` solo son confiables cuando los
+  establece un proxy controlado por la infraestructura; no se usan para autorizar.
+
+**Advertencia de despliegue:** `dev-only-password` es una credencial exclusivamente
+de desarrollo. **No se puede desplegar el sistema con la credencial del seed.** El
+aprovisionamiento seguro de la credencial de producción queda fuera de C-03.
+
 ## Integración continua
 
 `.github/workflows/ci.yml` corre, en cada push y en cada pull request, con

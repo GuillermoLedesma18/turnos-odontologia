@@ -161,7 +161,7 @@ Paso │ Agente A (Núcleo/Datos)    │ Agente B (Integraciones)   │ Agente C
   - `knowledge-base/09_decisiones_y_supuestos.md` §DD-01
 
 ### [C-03] `auth-odontologo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado (2026-11-18-c-03-auth-odontologo) — cierra GATE 2
 - **Scope**: Autenticación del único usuario (odontólogo)
   - `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
   - Hash **argon2**; sesión en cookie `httpOnly` + `SameSite` con expiración por inactividad (`RN-AUT-04`)

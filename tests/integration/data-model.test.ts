@@ -483,7 +483,7 @@ describe('índices y tipos nativos', () => {
         AND c.connamespace = 'public'::regnamespace
     `;
 
-    expect(fkCoverage).toHaveLength(7);
+    expect(fkCoverage).toHaveLength(8);
     for (const fk of fkCoverage) {
       expect(fk.covered, `la FK ${fk.constraint_name} no tiene índice`).toBe(true);
     }
