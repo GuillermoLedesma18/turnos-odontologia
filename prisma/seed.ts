@@ -154,11 +154,20 @@ function isMainModule(): boolean {
 }
 
 async function runAsScript(): Promise<void> {
-  const { env } = await import('../src/lib/env');
+  // En entornos locales sin una base de desarrollo separada, se permite sembrar
+  // la base de tests configurada. Esto no altera el contrato de la aplicación:
+  // `DATABASE_URL` sigue siendo la fuente preferida cuando está definida.
+  const connectionString = process.env.DATABASE_URL || process.env.TEST_DATABASE_URL;
+
+  if (!connectionString) {
+    console.error('Seed falló. Definí DATABASE_URL o TEST_DATABASE_URL.');
+    process.exitCode = 1;
+    return;
+  }
 
   const prisma = new PrismaClient({
     adapter: new PrismaPg({
-      connectionString: env.DATABASE_URL,
+      connectionString,
       connectionTimeoutMillis: 2_000,
     }),
   });

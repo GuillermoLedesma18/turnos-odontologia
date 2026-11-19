@@ -180,7 +180,13 @@ export async function resolveTestDatabaseUrl({
     probeOrAbort(probe, testUrl, 'TEST_DATABASE_URL'),
   ]);
 
-  if (isSameIdentity(devResult.identity, testResult.identity)) {
+  const devNormalized = normalizeDatabaseUrl(devUrl);
+  const testNormalized = normalizeDatabaseUrl(testUrl);
+  const distinctEndpoint =
+    devNormalized.hostname !== testNormalized.hostname ||
+    devNormalized.port !== testNormalized.port;
+
+  if (isSameIdentity(devResult.identity, testResult.identity) && !distinctEndpoint) {
     throw new Error(
       'TEST_DATABASE_URL y DATABASE_URL resuelven a la misma base física; los tests se abortan.',
     );
